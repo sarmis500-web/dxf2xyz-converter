@@ -48,13 +48,13 @@
                 
                 <!-- Online Converter Box -->
                 <div class="converter-box">
-                    <div class="drop-zone" id="drop-zone">
+                    <label class="drop-zone" id="drop-zone" for="file-input">
                         <div class="drop-zone-content">
                             <span class="drop-icon">📄</span>
-                            <p><strong>Click to select DXF</strong> or drag and drop</p>
-                            <input type="file" id="file-input" accept=".dxf" hidden>
+                            <p id="file-label-text"><strong>Click to select DXF</strong> or drag and drop</p>
                         </div>
-                    </div>
+                        <input type="file" id="file-input" accept=".dxf" class="visually-hidden">
+                    </label>
 
                     <div class="converter-controls">
                         <div class="preset-group">
@@ -228,20 +228,19 @@
         let resultPoints = [];
 
         // UI Interactions
-        dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFile);
         
         function handleFile(e) {
             const file = e.target.files[0];
             if (!file) return;
 
+            console.log('File selected:', file.name);
             currentFilename = file.name.replace(/\.[^/.]+$/, "") + ".xyz";
             const reader = new FileReader();
             reader.onload = (event) => {
                 currentDxfData = event.target.result;
-                dropZone.querySelector('p').innerHTML = `<strong>Selected:</strong> ${file.name}`;
+                document.getElementById('file-label-text').innerHTML = `<strong>Selected:</strong> ${file.name}`;
                 convertBtn.disabled = false;
-                console.log('File loaded:', file.name);
             };
             reader.readAsText(file);
         }
