@@ -7,11 +7,16 @@ import queue
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
-try:
-    from tkinterdnd2 import TkinterDnD, DND_FILES
-    HAS_DND = True
-except ImportError:
+if sys.platform == 'darwin':
+    # Tcl 9.0 on macOS Homebrew causes a fatal ABI segmentation fault 
+    # when attempting to load the tkdnd C-extension compiled for Tcl 8.x.
     HAS_DND = False
+else:
+    try:
+        from tkinterdnd2 import TkinterDnD, DND_FILES
+        HAS_DND = True
+    except ImportError:
+        HAS_DND = False
 
 from reader import read_dxf, ReaderOptions
 from processor import process, ProcessOptions
@@ -35,43 +40,48 @@ class ConverterApp:
         self.root.geometry("720x650")
         self.root.minsize(720, 650)
         
+        # Force window to the foreground on macOS
+        self.root.lift()
+        self.root.attributes('-topmost', True)
+        self.root.after_idle(self.root.attributes, '-topmost', False)
+        
         self.queue = queue.Queue()
         
         # Variables
-        self.input_path = tk.StringVar()
-        self.output_path = tk.StringVar()
-        self.format_var = tk.StringVar(value="xyz")
+        self.input_path = tk.StringVar(master=self.root)
+        self.output_path = tk.StringVar(master=self.root)
+        self.format_var = tk.StringVar(master=self.root, value="xyz")
         
         # Presets
-        self.preset_var = tk.StringVar(value="green")
+        self.preset_var = tk.StringVar(master=self.root, value="green")
         
         # Advanced Variables
-        self.curve_sagitta = tk.DoubleVar(value=0.05)
-        self.sample_faces = tk.BooleanVar(value=False)
-        self.face_density = tk.DoubleVar(value=0.1)
-        self.expand_blocks = tk.BooleanVar(value=True)
-        self.dedupe = tk.BooleanVar(value=True)
+        self.curve_sagitta = tk.DoubleVar(master=self.root, value=0.05)
+        self.sample_faces = tk.BooleanVar(master=self.root, value=False)
+        self.face_density = tk.DoubleVar(master=self.root, value=0.1)
+        self.expand_blocks = tk.BooleanVar(master=self.root, value=True)
+        self.dedupe = tk.BooleanVar(master=self.root, value=True)
         
-        self.voxel_size = tk.DoubleVar(value=0.06)
-        self.voxel_mode = tk.StringVar(value="first")
-        self.scale_factor = tk.DoubleVar(value=1.0)
-        self.center_origin = tk.BooleanVar(value=False)
+        self.voxel_size = tk.DoubleVar(master=self.root, value=0.06)
+        self.voxel_mode = tk.StringVar(master=self.root, value="first")
+        self.scale_factor = tk.DoubleVar(master=self.root, value=1.0)
+        self.center_origin = tk.BooleanVar(master=self.root, value=False)
         
-        self.flip_x = tk.BooleanVar(value=False)
-        self.flip_y = tk.BooleanVar(value=False)
-        self.flip_z = tk.BooleanVar(value=False)
-        self.swap_yz = tk.BooleanVar(value=False)
+        self.flip_x = tk.BooleanVar(master=self.root, value=False)
+        self.flip_y = tk.BooleanVar(master=self.root, value=False)
+        self.flip_z = tk.BooleanVar(master=self.root, value=False)
+        self.swap_yz = tk.BooleanVar(master=self.root, value=False)
         
-        self.delimiter = tk.StringVar(value=" ")
-        self.precision = tk.IntVar(value=4)
-        self.header = tk.StringVar(value="none")
-        self.header_text = tk.StringVar(value="")
-        self.intensity = tk.StringVar(value="none")
-        self.rgb_var = tk.StringVar(value="none")
+        self.delimiter = tk.StringVar(master=self.root, value=" ")
+        self.precision = tk.IntVar(master=self.root, value=4)
+        self.header = tk.StringVar(master=self.root, value="none")
+        self.header_text = tk.StringVar(master=self.root, value="")
+        self.intensity = tk.StringVar(master=self.root, value="none")
+        self.rgb_var = tk.StringVar(master=self.root, value="none")
         
-        self.rgb_r = tk.IntVar(value=255)
-        self.rgb_g = tk.IntVar(value=255)
-        self.rgb_b = tk.IntVar(value=255)
+        self.rgb_r = tk.IntVar(master=self.root, value=255)
+        self.rgb_g = tk.IntVar(master=self.root, value=255)
+        self.rgb_b = tk.IntVar(master=self.root, value=255)
         
         self.build_ui()
         self.load_settings()
@@ -231,10 +241,14 @@ class ConverterApp:
             self.voxel_size.set(0.0)
 
     def browse_input(self):
-        path = filedialog.askopenfilename(filetypes=[("DXF Files", "*.dxf *.DXF")])
-        if path:
-            self.input_path.set(path)
-            self.update_default_output()
+        try:
+            path = filedialog.askopenfilename(filetypes=[("DXF Files", "*.dxf"), ("All Files", "*.*")])
+            logging.info(f"File dialog returned: {repr(path)}")
+            if path:
+                self.input_path.set(path)
+                self.update_default_output()
+        except Exception as e:
+            logging.error(f"Error in file dialog: {e}")
 
     def update_default_output(self):
         ipath = self.input_path.get()
@@ -456,10 +470,25 @@ class ConverterApp:
             pass
 
 def launch_gui():
+    global HAS_DND
+    root = None
     if HAS_DND:
-        root = TkinterDnD.Tk()
-    else:
+        try:
+            root = TkinterDnD.Tk()
+        except Exception as e:
+            logging.warning(f"Failed to initialize TkinterDnD: {e}. Falling back to standard Tk.")
+            HAS_DND = False
+            # Clean up the broken default root if it was partially created
+            try:
+                if tk._default_root:
+                    tk._default_root.destroy()
+            except Exception:
+                pass
+    
+    if root is None:
         root = tk.Tk()
+        HAS_DND = False
+        
     app = ConverterApp(root)
     root.mainloop()
 
