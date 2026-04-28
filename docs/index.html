@@ -261,7 +261,7 @@
                 }
                 
                 const parser = new ParserClass();
-                const dxf = parser.parseString(currentDxfData);
+                const dxf = parser.parseSync(currentDxfData);
                 
                 const { points: rawPoints, entityCounts } = converter.extractPoints(dxf.entities);
                 
