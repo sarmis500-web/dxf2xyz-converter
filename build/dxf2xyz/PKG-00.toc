@@ -37,6 +37,10 @@
    '/Users/mike/Conversion '
    'Tool/dxf2xyz/.venv/lib/python3.12/site-packages/PyInstaller/loader/pyiboot01_bootstrap.py',
    'PYSOURCE'),
+  ('pyi_rth__tkinter',
+   '/Users/mike/Conversion '
+   'Tool/dxf2xyz/.venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks/pyi_rth__tkinter.py',
+   'PYSOURCE'),
   ('pyi_rth_inspect',
    '/Users/mike/Conversion '
    'Tool/dxf2xyz/.venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks/pyi_rth_inspect.py',

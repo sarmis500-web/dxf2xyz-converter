@@ -43,15 +43,55 @@
                 <h1>DXF to XYZ<br><span class="gradient-text">Point Cloud Converter</span></h1>
                 <p class="hero-subtitle">
                     Convert 3D scanner DXF files into clean, CNC-ready XYZ point clouds 
-                    for subsurface laser engraving. Fast, offline, no account required.
+                    for subsurface laser engraving. Works directly in your browser.
                 </p>
-                <div class="hero-actions">
-                    <a href="#download" class="btn btn-primary">
-                        <span class="btn-icon">↓</span> Download Free
-                    </a>
-                    <a href="https://github.com/sarmis500-web/dxf2xyz-converter" class="btn btn-secondary" target="_blank" rel="noopener">
-                        View Source
-                    </a>
+                
+                <!-- Online Converter Box -->
+                <div class="converter-box">
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="drop-zone-content">
+                            <span class="drop-icon">📄</span>
+                            <p><strong>Click to select DXF</strong> or drag and drop</p>
+                            <input type="file" id="file-input" accept=".dxf" hidden>
+                        </div>
+                    </div>
+
+                    <div class="converter-controls">
+                        <div class="preset-group">
+                            <label class="radio-label">
+                                <input type="radio" name="laser-preset" value="0.06" checked>
+                                <span>UV laser (0.06 mm)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="laser-preset" value="0.07">
+                                <span>Green laser (0.07 mm)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="laser-preset" value="0">
+                                <span>No thinning</span>
+                            </label>
+                        </div>
+                        <button class="btn btn-primary" id="convert-btn" disabled>
+                            <span class="btn-icon">⚡</span> Convert Online
+                        </button>
+                    </div>
+
+                    <div class="processing-status" id="status-display" style="display: none;">
+                        <div class="status-header">
+                            <span class="status-dot"></span>
+                            <span id="status-text">Processing...</span>
+                        </div>
+                        <div class="stats-text" id="stats-output"></div>
+                        <div class="preview-box">
+                            <label>Output Preview:</label>
+                            <pre id="preview-output"></pre>
+                        </div>
+                        <div class="result-actions">
+                            <button class="btn btn-secondary" id="download-xyz-btn">
+                                <span class="btn-icon">↓</span> Save .xyz File
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="hero-visual">
@@ -60,18 +100,15 @@
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="terminal-title">DXF to XYZ Converter v1.0.0</span>
+                        <span class="terminal-title">Desktop App (Alternative)</span>
                     </div>
                     <div class="terminal-body">
-                        <div class="terminal-line"><span class="t-label">Entities found:</span> 3DFACE: 10 &nbsp;POINT: 4 &nbsp;SPLINE: 1</div>
-                        <div class="terminal-line"><span class="t-label">Bounds X:</span> −10.00 → 10.00 &nbsp; span 20.00</div>
-                        <div class="terminal-line"><span class="t-label">Bounds Y:</span> −10.00 → 10.00 &nbsp; span 20.00</div>
-                        <div class="terminal-line"><span class="t-label">Bounds Z:</span> &nbsp; 0.00 → 10.00 &nbsp; span 10.00</div>
-                        <div class="terminal-line dim">Diagonal: 30.00 (file units)</div>
-                        <div class="terminal-line"><span class="t-label">Points in:</span> &nbsp; &nbsp; 114</div>
-                        <div class="terminal-line"><span class="t-label">After dedupe:</span> &nbsp;67</div>
-                        <div class="terminal-line"><span class="t-label">After voxel thin:</span> 67</div>
-                        <div class="terminal-line highlight">Output written: sample.xyz (67 lines, 1 KB) ✓</div>
+                        <p class="dim">If you prefer a standalone desktop utility, you can still download the native app below.</p>
+                        <div class="hero-actions" style="margin-top: 20px;">
+                            <a href="#download" class="btn btn-secondary btn-sm">
+                                <span class="btn-icon">↓</span> Desktop Builds
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -79,45 +116,30 @@
 
         <!-- Features Section -->
         <section class="features" id="features">
-            <h2>Why This Tool?</h2>
+            <h2>Instant Online Conversion</h2>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Instant Conversion</h3>
-                    <p>Processes complex DXF meshes in under a second. No cloud, no upload, no waiting.</p>
+                    <div class="feature-icon">🚀</div>
+                    <h3>No Install Required</h3>
+                    <p>Starts instantly in any browser. Perfect for checking files on the go from your iPhone.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Fully Offline</h3>
-                    <p>Runs entirely on your machine. Your 3D scan data never leaves your computer.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Laser-Tuned Presets</h3>
-                    <p>Built-in voxel thinning presets for UV (0.06mm) and Green (0.07mm) SSLE lasers.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🧩</div>
-                    <h3>Reads Everything</h3>
-                    <p>Handles 3DFACE, POLYLINE polyface meshes, points, splines, blocks, and more.</p>
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Private & Secure</h3>
+                    <p>Your DXF files never leave your device. All processing happens locally in your browser.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📐</div>
-                    <h3>Smart Processing</h3>
-                    <p>Automatic deduplication, coordinate flipping, origin centering, and axis swapping.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💻</div>
-                    <h3>Cross-Platform</h3>
-                    <p>Native builds for macOS (Intel) and Windows 11. No Python or dependencies needed.</p>
+                    <h3>CNC Optimized</h3>
+                    <p>Exports clean, deduplicated point clouds ready for subsurface laser software.</p>
                 </div>
             </div>
         </section>
 
         <!-- Download Section -->
         <section class="download" id="download">
-            <h2>Download</h2>
-            <p class="download-subtitle">Choose your platform. No sign-up, no account, no strings attached.</p>
+            <h2>Desktop Utilities</h2>
+            <p class="download-subtitle">Offline versions for heavy-duty batch processing on Mac and Windows.</p>
             
             <div class="download-cards">
                 <a href="https://github.com/sarmis500-web/dxf2xyz-converter/releases/latest/download/DXF-to-XYZ-macOS.zip" class="download-card" id="download-mac">
@@ -133,72 +155,48 @@
                     <span class="download-btn">Download .exe</span>
                 </a>
             </div>
-
-            <div class="mobile-notice" id="mobile-notice">
-                <div class="notice-icon">📱</div>
-                <p><strong>Viewing on your phone?</strong> This is a desktop app. Open this same link on your Mac or PC to download.</p>
-            </div>
         </section>
 
         <!-- Setup Guide Section -->
         <section class="setup" id="setup">
-            <h2>Getting Started</h2>
+            <h2>Help & Support</h2>
             
             <div class="setup-tabs">
-                <button class="tab-btn active" data-tab="mac-setup">macOS</button>
-                <button class="tab-btn" data-tab="win-setup">Windows</button>
+                <button class="tab-btn active" data-tab="online-help">Online Tool</button>
+                <button class="tab-btn" data-tab="desktop-help">Desktop App</button>
             </div>
 
-            <div class="tab-content active" id="mac-setup">
+            <div class="tab-content active" id="online-help">
                 <div class="step">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <h3>Download &amp; Unzip</h3>
-                        <p>Click "Download .zip" above. Double-click the downloaded file to extract the <strong>DXF to XYZ.app</strong>.</p>
+                        <h3>Select your DXF</h3>
+                        <p>Tap the drop zone to pick a file. On iPhone, this opens your "Files" app or Photo Library.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3>Bypass Gatekeeper</h3>
-                        <p>Since this app isn't from the App Store, macOS will initially block it. Here's the fix:</p>
-                        <div class="code-block">
-                            <p>① <strong>Right-click</strong> (or Control-click) the app icon</p>
-                            <p>② Click <strong>"Open"</strong> from the menu</p>
-                            <p>③ In the dialog, click <strong>"Open"</strong> again to confirm</p>
-                        </div>
-                        <p class="hint">You only need to do this once. After that, it opens normally.</p>
+                        <h3>Choose a Preset</h3>
+                        <p>Select your laser's spot size (UV is usually 0.06mm, Green is 0.07mm) to thin the point cloud.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h3>Convert Your Files</h3>
-                        <p>Click <strong>Browse</strong>, select your DXF file, choose a laser preset, and hit <strong>Convert</strong>. Done!</p>
+                        <h3>Save Result</h3>
+                        <p>Review the preview and stats, then tap <strong>"Save .xyz File"</strong> to store it on your device.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-content" id="win-setup">
+            <div class="tab-content" id="desktop-help">
                 <div class="step">
-                    <div class="step-number">1</div>
+                    <div class="step-number">!</div>
                     <div class="step-content">
-                        <h3>Download the .exe</h3>
-                        <p>Click "Download .exe" above. Save it anywhere you like.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Allow SmartScreen</h3>
-                        <p>Windows may show a SmartScreen warning. Click <strong>"More info"</strong>, then <strong>"Run anyway"</strong>.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Convert Your Files</h3>
-                        <p>Click <strong>Browse</strong>, select your DXF file, choose a laser preset, and hit <strong>Convert</strong>. Done!</p>
+                        <h3>Installation Guide</h3>
+                        <p>Download the .zip (Mac) or .exe (Windows) from the section above.</p>
+                        <p><strong>Mac Users:</strong> Right-click the app and select "Open" to bypass Gatekeeper security.</p>
                     </div>
                 </div>
             </div>
