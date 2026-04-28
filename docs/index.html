@@ -209,7 +209,107 @@
         </p>
     </footer>
 
-    <script>
+    <!-- Scripts -->
+    <script src="https://unpkg.com/dxf-parser/dist/dxf-parser.js"></script>
+    <script type="module">
+        import DXFConverter from './converter.js';
+
+        const converter = new DXFConverter();
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const convertBtn = document.getElementById('convert-btn');
+        const statusDisplay = document.getElementById('status-display');
+        const statsOutput = document.getElementById('stats-output');
+        const previewOutput = document.getElementById('preview-output');
+        const downloadBtn = document.getElementById('download-xyz-btn');
+
+        let currentDxfData = null;
+        let currentFilename = 'converted.xyz';
+        let resultPoints = [];
+
+        // UI Interactions
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFile);
+        
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            currentFilename = file.name.replace(/\.[^/.]+$/, "") + ".xyz";
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                currentDxfData = event.target.result;
+                dropZone.querySelector('p').innerHTML = `<strong>Selected:</strong> ${file.name}`;
+                convertBtn.disabled = false;
+                console.log('File loaded:', file.name);
+            };
+            reader.readAsText(file);
+        }
+
+        convertBtn.addEventListener('click', async () => {
+            if (!currentDxfData) return;
+
+            statusDisplay.style.display = 'block';
+            statusDisplay.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('status-text').textContent = 'Processing...';
+            document.getElementById('status-text').parentElement.classList.remove('success');
+            
+            try {
+                // Ensure DxfParser is accessible (handle different CDN build styles)
+                const ParserClass = window.DxfParser || (window.DxfParserDefault ? window.DxfParserDefault.default : null);
+                if (!ParserClass) {
+                    throw new Error('DXF library not loaded. Please refresh and try again.');
+                }
+                
+                const parser = new ParserClass();
+                const dxf = parser.parseString(currentDxfData);
+                
+                const { points: rawPoints, entityCounts } = converter.extractPoints(dxf.entities);
+                
+                if (rawPoints.length === 0) {
+                    throw new Error('No 3D points or faces found in this DXF file.');
+                }
+
+                const voxelSize = parseFloat(document.querySelector('input[name="laser-preset"]:checked').value);
+                const result = converter.process(rawPoints, {
+                    dedupe: true,
+                    voxelSize: voxelSize,
+                    scale: 1.0
+                });
+
+                resultPoints = result.points;
+
+                // Update UI
+                statsOutput.innerHTML = `
+                    <p>Entities: ${Object.entries(entityCounts).map(([k,v]) => `${k}: ${v}`).join(', ')}</p>
+                    <p>Points In: ${result.countIn}</p>
+                    <p>After Thinning: ${result.countOut}</p>
+                    <p>Bounds X: ${result.bounds.min[0].toFixed(2)} → ${result.bounds.max[0].toFixed(2)}</p>
+                    <p>Bounds Y: ${result.bounds.min[1].toFixed(2)} → ${result.bounds.max[1].toFixed(2)}</p>
+                `;
+
+                previewOutput.textContent = converter.formatXYZ(result.points.slice(0, 10)) + (result.points.length > 10 ? '\n...' : '');
+                
+                document.getElementById('status-text').textContent = 'Conversion Complete ✓';
+                document.getElementById('status-text').parentElement.classList.add('success');
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status-text').textContent = 'Error: ' + err.message;
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const content = converter.formatXYZ(resultPoints);
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentFilename;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
         // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -217,15 +317,6 @@
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 btn.classList.add('active');
                 document.getElementById(btn.dataset.tab).classList.add('active');
-            });
-        });
-
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(a => {
-            a.addEventListener('click', e => {
-                e.preventDefault();
-                const target = document.querySelector(a.getAttribute('href'));
-                if (target) target.scrollIntoView({ behavior: 'smooth' });
             });
         });
     </script>
