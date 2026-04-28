@@ -7,6 +7,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build on ${{ matrix.os }}
@@ -48,17 +51,27 @@ jobs:
         
     - name: Rename Windows Executable
       if: matrix.os == 'windows-latest'
+      shell: pwsh
       run: |
-        cd dist
-        Rename-Item -Path "DXF to XYZ.exe" -NewName "DXF-to-XYZ-Windows.exe"
+        Rename-Item -Path "dist/DXF to XYZ.exe" -NewName "DXF-to-XYZ-Windows.exe"
 
-    - name: Upload to GitHub Release
+    - name: Upload macOS to Release
+      if: matrix.os == 'macos-13'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: latest
         name: Latest Release
         draft: false
         prerelease: false
-        files: |
-          dist/DXF-to-XYZ-macOS.zip
-          dist/DXF-to-XYZ-Windows.exe
+        files: dist/DXF-to-XYZ-macOS.zip
+
+    - name: Upload Windows to Release
+      if: matrix.os == 'windows-latest'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: Latest Release
+        draft: false
+        prerelease: false
+        files: dist/DXF-to-XYZ-Windows.exe
+
