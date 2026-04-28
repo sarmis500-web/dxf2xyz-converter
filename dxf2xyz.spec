@@ -8,7 +8,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=['ezdxf', 'numpy', 'tkinter', 'tkinterdnd2'],
+    hiddenimports=['ezdxf', 'numpy', 'tkinter'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -50,7 +50,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
         name='DXF to XYZ.app',
-        icon='assets/icon.icns',
+        icon=None,
         bundle_identifier=None,
     )
 else:
